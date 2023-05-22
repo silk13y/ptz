@@ -1,0 +1,97 @@
+import random
+import time
+import multiprocessing
+
+def bubble_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        for j in range(n-i-1):
+            if arr[j] > arr[j+1]:
+                arr[j], arr[j+1] = arr[j+1], arr[j]
+
+def merge_sort(arr):
+    if len(arr) <= 1:
+        return arr
+
+    mid = len(arr) // 2
+    left = arr[:mid]
+    right = arr[mid:]
+
+    left = merge_sort(left)
+    right = merge_sort(right)
+
+    return merge(left, right)
+
+def merge(left, right):
+    result = []
+    i = j = 0
+
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+
+    result += left[i:]
+    result += right[j:]
+    return result
+
+if __name__ == '__main__':
+    num_procs = multiprocessing.cpu_count()
+    print(f'Number of CPUs available: {num_procs}')
+
+    arr_size = 10000
+    arr = [random.randint(1, 100) for _ in range(arr_size)]
+    print(f'Unsorted array: {arr}')
+
+    # sequential bubble sort
+    start_time = time.time()
+    bubble_sort(arr)
+    end_time = time.time()
+    print(f'Sorted array (sequential bubble sort): {arr}')
+    print(f'Time taken (sequential bubble sort): {end_time - start_time:.4f} seconds')
+
+    # parallel bubble sort
+    start_time = time.time()
+    arr_split = [arr[i::num_procs] for i in range(num_procs)]
+    with multiprocessing.Pool(processes=num_procs) as pool:
+        arr_split = pool.map(bubble_sort, arr_split)
+    while len(arr_split) > 1:
+        next_arr_split = []
+        for i in range(0, len(arr_split), 2):
+            if i+1 < len(arr_split):
+                next_arr_split.append(merge(arr_split[i], arr_split[i+1]))
+            else:
+                next_arr_split.append(arr_split[i])
+        arr_split = next_arr_split
+    arr = arr_split[0]
+    end_time = time.time()
+    print(f'Sorted array (parallel bubble sort): {arr}')
+    print(f'Time taken (parallel bubble sort): {end_time - start_time:.4f} seconds')
+
+    # sequential merge sort
+    start_time = time.time()
+    arr = merge_sort(arr)
+    end_time = time.time()
+    print(f'Sorted array (sequential merge sort): {arr}')
+    print(f'Time taken (sequential merge sort): {end_time - start_time:.4f} seconds')
+
+    # parallel merge sort
+    start_time = time.time()
+    arr_split = [arr[i::num_procs] for i in range(num_procs)]
+    with multiprocessing.Pool(processes=num_procs) as pool:
+        arr_split = pool.map(merge_sort, arr_split)
+    while len(arr_split) > 1:
+        next_arr_split = []
+        for i in range(0, len(arr_split), 2):
+            if i+1 < len(arr_split):
+                next_arr_split.append(merge(arr_split[i], arr_split[i+1]))
+else:
+	next_arr_split.append(arr_split[i])
+arr_split = next_arr_split
+arr = arr_split[0]
+end_time = time.time()
+print(f'Sorted array (parallel merge sort): {arr}')
+print(f'Time taken (parallel merge sort): {end_time - start_time:.4f} seconds')

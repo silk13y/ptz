@@ -1,0 +1,81 @@
+import random
+import time
+from joblib import Parallel, delayed
+
+def bubble_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        for j in range(n - i - 1):
+            if arr[j] > arr[j+1]:
+                arr[j], arr[j+1] = arr[j+1], arr[j]
+
+def merge_sort(arr):
+    if len(arr) <= 1:
+        return arr
+
+    mid = len(arr) // 2
+    left = arr[:mid]
+    right = arr[mid:]
+
+    left = merge_sort(left)
+    right = merge_sort(right)
+
+    return merge(left, right)
+
+def merge(left, right):
+    result = []
+    i = j = 0
+
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+
+    result += left[i:]
+    result += right[j:]
+    return result
+
+if __name__ == '__main__':
+    arr_size = 10000
+    arr = [random.randint(1, 100) for _ in range(arr_size)]
+    print(f'Unsorted array: {arr}')
+
+    # Sequential bubble sort
+    start_time = time.time()
+    bubble_sort(arr)
+    end_time = time.time()
+    print(f'Sorted array (sequential bubble sort): {arr}')
+    print(f'Time taken (sequential bubble sort): {end_time - start_time:.4f} seconds')
+
+    # Parallel bubble sort
+    start_time = time.time()
+    Parallel(n_jobs=-1)(delayed(bubble_sort)(arr) for _ in range(10))
+    end_time = time.time()
+    print(f'Sorted array (parallel bubble sort): {arr}')
+    print(f'Time taken (parallel bubble sort): {end_time - start_time:.4f} seconds')
+
+    # Sequential merge sort
+    start_time = time.time()
+    arr = merge_sort(arr)
+    end_time = time.time()
+    print(f'Sorted array (sequential merge sort): {arr}')
+    print(f'Time taken (sequential merge sort): {end_time - start_time:.4f} seconds')
+
+    # Parallel merge sort
+    start_time = time.time()
+    arr_splits = Parallel(n_jobs=-1)(delayed(merge_sort)(split) for split in [arr[i::10] for i in range(10)])
+    while len(arr_splits) > 1:
+        next_splits = []
+        for i in range(0, len(arr_splits), 2):
+            if i+1 < len(arr_splits):
+                next_splits.append(merge(arr_splits[i], arr_splits[i+1]))
+            else:
+                next_splits.append(arr_splits[i])
+        arr_splits = next_splits
+    arr = arr_splits[0]
+    end_time = time.time()
+    print(f'Sorted array (parallel merge sort): {arr}')
+    print(f'Time taken (parallel merge sort): {end_time - start_time:.4f} seconds')

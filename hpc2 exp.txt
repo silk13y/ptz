@@ -1,0 +1,99 @@
+Certainly! Here's an explanation of the code line by line:
+
+python
+Copy code
+import random
+import time
+from joblib import Parallel, delayed
+We import the necessary modules: random for generating random numbers, time for measuring execution time, and Parallel and delayed from joblib for parallel processing.
+python
+Copy code
+def bubble_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        for j in range(n - i - 1):
+            if arr[j] > arr[j+1]:
+                arr[j], arr[j+1] = arr[j+1], arr[j]
+This is the implementation of the bubble sort algorithm. It takes an array arr and sorts it in-place using the bubble sort algorithm.
+python
+Copy code
+def merge_sort(arr):
+    if len(arr) <= 1:
+        return arr
+
+    mid = len(arr) // 2
+    left = arr[:mid]
+    right = arr[mid:]
+
+    left = merge_sort(left)
+    right = merge_sort(right)
+
+    return merge(left, right)
+This is the implementation of the merge sort algorithm. It recursively divides the array arr into smaller halves until the base case is reached (when the length of the array is 0 or 1). Then, it merges the sorted halves using the merge function and returns the sorted array.
+python
+Copy code
+def merge(left, right):
+    result = []
+    i = j = 0
+
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+
+    result += left[i:]
+    result += right[j:]
+    return result
+This function merges two sorted arrays (left and right) into a single sorted array result. It compares the elements from both arrays and appends the smaller element to the result array until all elements have been processed.
+python
+Copy code
+if __name__ == '__main__':
+    arr_size = 10000
+    arr = [random.randint(1, 100) for _ in range(arr_size)]
+    print(f'Unsorted array: {arr}')
+This condition ensures that the code inside the block is only executed when the script is run directly (not imported as a module). It prevents the code from being executed if the file is imported elsewhere.
+We define the size of the array (arr_size) and generate a random unsorted array arr of that size.
+python
+Copy code
+    # Sequential bubble sort
+    start_time = time.time()
+    bubble_sort(arr)
+    end_time = time.time()
+    print(f'Sorted array (sequential bubble sort): {arr}')
+    print(f'Time taken (sequential bubble sort): {end_time - start_time:.4f} seconds')
+We measure the execution time of the sequential bubble sort by calling the bubble_sort function on the arr array. The start and end times are recorded, and the sorted array is printed along with the execution time.
+python
+Copy code
+    # Parallel bubble sort
+    start_time = time.time()
+    Parallel(n_jobs=-1)(delayed(bubble_sort)(arr) for _ in range(10))
+    end_time = time.time()
+    print(f'Sorted array (parallel bubble sort): {arr}')
+    print(f'Time taken (parallel bubble sort): {end_time - start_time:.4f} seconds')
+We measure the execution time of the parallel bubble sort. The Parallel function from joblib is used to execute the bubble_sort function in parallel for 10 iterations (using all available CPU cores). The start and end times are recorded, and the sorted array is printed along with the execution time.
+python
+Copy code
+    # Sequential merge sort
+    start_time = time.time()
+    arr = merge_sort(arr)
+    end_time = time.time()
+    print(f'Sorted array (sequential merge sort): {arr}')
+    print(f'Time taken (sequential merge sort): {end_time - start_time:.4f} seconds')
+We measure the execution time of the sequential merge sort by calling the merge_sort function on the arr array. The start and end times are recorded, and the sorted array is printed along with the execution time.
+python
+Copy code
+    # Parallel merge sort
+    start_time = time.time()
+    arr = Parallel(n_jobs=-1)(delayed(merge_sort)(arr) for _ in range(10))
+    end_time = time.time()
+    print(f'Sorted array (parallel merge sort): {arr}')
+    print(f'Time taken (parallel merge sort): {end_time - start_time:.4f} seconds')
+We measure the execution time of the parallel merge sort. The Parallel function from joblib is used to execute the merge_sort function in parallel for 10 iterations (using all available CPU cores). The start and end times are recorded, and the sorted array is printed along with the execution time.
+The code demonstrates how to perform sequential and parallel sorting using bubble sort and merge sort algorithms. The parallel sorting is achieved by leveraging parallel processing capabilities using the joblib library. The execution times of both sequential and parallel approaches are measured and compared to evaluate the performance benefits of parallel processing.
+
+
+
+
